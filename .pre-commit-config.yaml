@@ -1,0 +1,40 @@
+default_language_version:
+  python: python3.9
+exclude: '\.csv|\.sql'
+repos:
+  - repo: local
+    hooks:
+      - &empty-init-creator
+        id: empty-init-creator
+        name: empty-init-creator
+        entry: etc/precommit/empty_init_creator.py
+        language: python
+        types: [python]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: no-commit-to-branch
+        args: [--branch, prod]
+      - id: trailing-whitespace
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort
+        args: ["--profile", "black", "--line-length=120"]
+
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-typing-imports==1.12.0]

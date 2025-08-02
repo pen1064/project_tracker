@@ -8,7 +8,7 @@ from backend.database_api.routers import projects, tasks
 
 logging.basicConfig(
     level=logging.INFO,  # Show INFO and above
-    format="%(asctime)s [%(levelname)s] %(message)s",
+    format="%(asctime)Dockerfile [%(levelname)Dockerfile] %(message)Dockerfile",
 )
 
 

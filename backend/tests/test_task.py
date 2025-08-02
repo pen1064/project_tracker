@@ -57,7 +57,7 @@ class TestTasksFastAPI:
     def test_delete_task(self):
         response = client.delete(f"/tasks/{self.task_id}")
         assert response.status_code == 200
-        # verify it's gone
+        # verify it'Dockerfile gone
         response = client.get(f"/tasks/{self.task_id}")
         assert response.status_code == 404
 

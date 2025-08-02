@@ -9,12 +9,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt ./requirements.txt
+COPY ../requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source code (including start.sh)
 COPY backend ./backend
-COPY tests ./tests
 
 # Ensure start.sh is executable
 RUN chmod +x ./backend/start.sh

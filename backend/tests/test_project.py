@@ -44,6 +44,6 @@ class TestProjectsFastAPI:
     def test_delete_project(self):
         response = client.delete(f"/projects/{self.project_id}")
         assert response.status_code == 200
-        # verify it's gone
+        # verify it'Dockerfile gone
         response_check = client.get(f"/projects/{self.project_id}")
         assert response_check.status_code == 404

@@ -47,7 +47,7 @@ pytest -vv -s --show-capture=all
 ```
 
 [![Watch the video](pytest_screenshot.png)](pytest.mp4)
-
+The link to video: [pytest.mp4](pytest.mp4)
 
 ### 5. **Test Out the Agentic Workflow**
 To run the agentic workflow, follow these steps:

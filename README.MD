@@ -57,7 +57,7 @@ To run the agentic workflow, follow these steps:
 python -m workflow.cli
 ```
 
-[![Watch the video](img_1.png)](..%2F..%2FDownloads%2Fexample.mp4)
+[![Watch the video](img_1.png)](example.mp4)
 
 
 ## 6. **Architecture Overview**

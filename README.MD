@@ -34,7 +34,7 @@ http://localhost:8000/docs#/
 
 Here you can interact with all FastAPI endpoints using the Swagger UI.
 
-### 4. **Test Out all pytest**
+### 4. **Test Out All pytest Test Cases**
 To run all the test cases, follow these steps:
 
 1. **Open a shell inside the running backend container:**

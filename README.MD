@@ -26,11 +26,11 @@ This will launch all three containers:
 - **project-tracker-mcp**  
   _MCP server_
 
-![img.png](img.png)
+![img.png](docker_containers.png)
 ### 3. **Access the FastAPI Database CRUD**
 Open your browser and go to:
 http://localhost:8000/docs#/
-![img_3.png](img_3.png)
+![img_3.png](fastapi_test_page.png)
 
 Here you can interact with all FastAPI endpoints using the Swagger UI.
 
@@ -46,7 +46,8 @@ To run all the test cases, follow these steps:
 pytest -vv -s --show-capture=all
 ```
 
-[![Watch the video](img_2.png)](pytest.mp4)
+[![Watch the video](pytest_screenshot.png)](pytest.mp4)
+
 
 ### 5. **Test Out the Agentic Workflow**
 To run the agentic workflow, follow these steps:
@@ -60,7 +61,7 @@ To run the agentic workflow, follow these steps:
 python -m workflow.cli
 ```
 
-[![Watch the video](img_1.png)](example.mp4)
+[![Watch the video](screenshot_test_workflow.png)](example.mp4)
 The link to video: [example.mp4](example.mp4)
 
 ## 6. **Architecture Overview**

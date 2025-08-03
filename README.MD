@@ -63,7 +63,7 @@ python -m workflow.cli
 ## 6. **Architecture Overview**
 
 This project implements an agentic workflow system integrating multiple components to manage projects and tasks efficiently. The core architecture is designed for scalability, observability, and smooth user interaction.
-![project_tracker.png](..%2F..%2FDownloads%2Fproject_tracker.png)
+![project_tracker.png](project_tracker.png)
 ---
 
 ### Key Components

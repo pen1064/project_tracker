@@ -23,8 +23,12 @@ def create_project(
     project: ProjectCreate,
     service: ProjectService = Depends(get_project_service),
 ):
+    """
+        Endpoint to create a new Project.
+    """
     logging.info(f"Creating project with data: {project}")
-    return service.create(project=project)
+    new_project = service.create(project=project)
+    return new_project
 
 
 @router.get("/{project_id}", response_model=Project)
@@ -32,6 +36,9 @@ def get_project(
     project_id: int,
     service: ProjectService = Depends(get_project_service),
 ):
+    """
+        Endpoint to retrieve a project by its ID
+    """
     logging.info(f"Reading project with id={project_id}")
     project_obj = service.get(project_id=project_id)
     if not project_obj:
@@ -43,8 +50,11 @@ def get_project(
 def get_projects(
     name: Optional[str] = None,
     status: Optional[ProjectStatus] = None,
-    service: ProjectService = Depends(get_project_service),  # must be last
+    service: ProjectService = Depends(get_project_service),
 ):
+    """
+        Endpoint to list projects filtered by optional query parameters.
+    """
     logging.info("List all Projects")
     return service.list(name=name, status=status)
 
@@ -55,6 +65,9 @@ def update_project(
     project_update: ProjectUpdate,
     service: ProjectService = Depends(get_project_service),
 ):
+    """
+        Endpoint to update an existing project partially.
+    """
     logging.info(f"Updating project id={project_id} with data: {project_update}")
     updated = service.update(project_id=project_id, project_update=project_update)
     if not updated:
@@ -67,6 +80,9 @@ def delete_project(
     project_id: int,
     service: ProjectService = Depends(get_project_service),
 ):
+    """
+       Endpoint to delete a project by its ID.
+    """
     logging.info(f"Deleting project id={project_id}")
     deleted = service.delete(project_id=project_id)
     if not deleted:

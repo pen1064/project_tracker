@@ -23,6 +23,9 @@ def create_task(
     task: TaskCreate,
     service: TaskService = Depends(get_task_service),
 ):
+    """
+        Endpoint to create a new task.
+    """
     return service.create(task=task)
 
 
@@ -31,6 +34,9 @@ def get_task(
     task_id: int,
     service: TaskService = Depends(get_task_service),
 ):
+    """
+        Endpoint to retrieve a task by its ID.
+    """
     task_obj = service.get(task_id=task_id)
     if not task_obj:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -46,6 +52,9 @@ def list_tasks(
     title: Optional[str] = None,
     service: TaskService = Depends(get_task_service),
 ):
+    """
+        Endpoint to list tasks with optional filters.
+    """
     logging.info(
         f"GET: Tasks assigned to {assigned_to} with status {status} for project_id {project_id}/ "
         f"project_name {project_name}"
@@ -65,6 +74,9 @@ def update_task(
     task_update: TaskUpdate,
     service: TaskService = Depends(get_task_service),
 ):
+    """
+       Endpoint to partially update a task.
+    """
     updated = service.update(task_id=task_id, task_update=task_update)
     if not updated:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -76,6 +88,9 @@ def delete_task(
     task_id: int,
     service: TaskService = Depends(get_task_service),
 ):
+    """
+        Endpoint to delete a task by ID.
+    """
     deleted = service.delete(task_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Task not found")

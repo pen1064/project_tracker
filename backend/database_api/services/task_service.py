@@ -8,6 +8,10 @@ from backend.database_api.schemas.task import TaskCreate, TaskUpdate
 
 
 class TaskService:
+    """
+    Service layer class responsible for logic related to Tasks.
+    It uses TaskRepository for database interactions and global_cache for caching.
+    """
     def __init__(self, repo: TaskRepository):
         self.repo = repo
 

@@ -46,6 +46,7 @@ class Task(BaseModel):
     assigned_to: str
     status: TaskStatus
     due_date: datetime
+    project_id: int
     created_time: datetime
     last_modified: datetime
     model_config = ConfigDict(from_attributes=True)

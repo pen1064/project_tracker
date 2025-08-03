@@ -1,0 +1,23 @@
+pytest -vv -s --show-capture=all
+
+1. Test if task can be created without the project -> Expected NO
+create a task for bob to clean up his room starting 2025-07-25, end 2025-07-28, status in progress, project id 1
+
+2. Create project, without clearly saying status. Should go to clarify node
+Create a new project called New House with description 'cleaning house', starting on 2025-09-01 and ending on 2025-11-30
+
+3. Create repeated projects -> Expected behavior: tell me similar project has been created. Ask me do I want to create another one.
+Create a new project called New House with description 'cleaning house', starting on 2025-09-01 and ending on 2025-12-30 status to do
+
+4. Create a normal task.
+create a task for bob to clean up his room starting 2025-07-25, end 2025-07-28, status in progress, project id 1
+
+5. Create another project.
+Create a new project called Data Pipeline with description 'ETL for sales', starting on 2025-09-01 and ending on 2025-11-30 status to do
+
+6. Create another task, but expected to be overdue
+create a task for bob to check requirements from client starting 2025-07-25, end 2025-07-28, status in progress, project id 2
+
+7. Just another way to ask question.
+what is the project id for data pipeline?
+

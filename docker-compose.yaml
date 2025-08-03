@@ -4,6 +4,7 @@ services:
       dockerfile: ./backend/Dockerfile
     volumes:
       - ./backend:/code/backend
+      - ./workflow:/code/workflow
     env_file:
       - ./.env
     environment:

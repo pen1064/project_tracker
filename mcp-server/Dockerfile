@@ -6,6 +6,10 @@ WORKDIR /app
 # Copy package files and install dependencies
 COPY package*.json tsconfig.json ./
 RUN npm install
+RUN npm install @modelcontextprotocol/sdk@latest
+# Install type declarations for ws
+RUN npm install --save-dev @types/ws
+RUN npm install @types/express
 
 # Copy source files
 COPY src ./src

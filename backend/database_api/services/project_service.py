@@ -7,6 +7,10 @@ from backend.database_api.schemas.project import ProjectCreate, ProjectUpdate
 
 
 class ProjectService:
+    """
+    Service layer class responsible for logic related to Projects.
+    It uses ProjectRepository for database interactions and global_cache for caching.
+    """
     def __init__(self, repo: ProjectRepository):
         self.repo = repo
 

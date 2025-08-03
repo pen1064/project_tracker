@@ -30,6 +30,7 @@ This will launch all three containers:
 ### 3. **Access the FastAPI Database CRUD**
 Open your browser and go to:
 http://localhost:8000/docs#/
+![img_3.png](img_3.png)
 
 Here you can interact with all FastAPI endpoints using the Swagger UI.
 
@@ -45,6 +46,8 @@ To run all the test cases, follow these steps:
 pytest -vv -s --show-capture=all
 ```
 
+[![Watch the video](img_2.png)](pytest.mp4)
+
 ### 5. **Test Out the Agentic Workflow**
 To run the agentic workflow, follow these steps:
 
@@ -58,7 +61,7 @@ python -m workflow.cli
 ```
 
 [![Watch the video](img_1.png)](example.mp4)
-
+The link to video: [example.mp4](example.mp4)
 
 ## 6. **Architecture Overview**
 
@@ -71,7 +74,7 @@ This project implements an agentic workflow system integrating multiple componen
 #### 1. Workflow Nodes
 
 - **Orange Boxes (LLM Nodes):**  
-  These nodes use large language models (LLMs) to perform tasks such as planning, clarifying intent, analyzing, and producing the final answer.  
+  These nodes use large language models (LLMs) to perform tasks such as identifying intent (planning), clarifying intent/ details, analyzing, and producing the final answer.  
   _Example nodes:_ `Plan`, `Clarify`, `Analyze After Check`, `Final Answer`.
 
 - **Purple Boxes (Database Query Nodes):**  
@@ -87,11 +90,17 @@ This project implements an agentic workflow system integrating multiple componen
 ### Data and Context Management
 
 - **In-Memory Context Management (Langchain InMemory):**  
-  - For development and testing, conversation context is managed using Langchain's **InMemory vector store**, which temporarily holds session states and embeddings. This allows the agent to maintain context across multiple user inputs within the same conversation.
+  - For development and testing, conversation context is managed using LangGraph's **InMemorySaver**, which temporarily holds session states. This allows the agent to maintain context across multiple user inputs within the same workflow.
   - This is especially important for nodes like the **Clarify** node, where the user may need to provide additional information or partial input. Using in-memory context ensures that the agent does not lose track of previous context when the user inputs are incomplete or spread over multiple interactions.
 
 - **Redis (Production):**  
   In production environments, Redis is recommended to manage conversation context for persistence, scalability, and fast access.
+
+
+- **Guardrails for Sensitive Data:**
+  - Currently, basic guardrails are in place that use keyword-based detection to prevent accidental leakage of sensitive information such as passwords, API keys, and access tokens.
+  - In a production environment, can use an online streaming ML model to redact PII, for example using Microsoft Presidio.
+
 
 ---
 
@@ -104,7 +113,7 @@ This project implements an agentic workflow system integrating multiple componen
   Hosts the REST API, interacts with the MCP Server, PostgreSQL database, and message broker for background jobs.
 
 - **MCP Server:**  
-  Acts as the orchestrator for tool calls, mediating between the LLMs, database queries, and external APIs.
+  Acts as the orchestrator for tool calls, mediating between the LLMs, the API for database queries, and external APIs (if anymore).
 
 ---
 
@@ -136,8 +145,8 @@ Users interact with the system primarily through the **agentic workflow** interf
 4. Based on checks, creation nodes add new projects or tasks.  
 5. Final answers are composed and returned to the user.  
 6. Context is managed in-memory during development and Redis in production.  
-7. All operations generate logs monitored by DataDog.  
-8. Background jobs handle asynchronous email notifications and archiving.
+7. All operations generate logs monitored by DataDog in production
+8. Background jobs handle asynchronous email notifications and archiving in production.
 
 
 

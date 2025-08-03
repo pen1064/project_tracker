@@ -23,7 +23,7 @@ def filter_llm_output(text: str) -> str:
     """
     Block forbidden or unsafe terms from LLM output.
     """
-    forbidden_terms: list[str] = ["password", "credit card", "attack", "hack"]
+    forbidden_terms: list[str] = ["password", "credit card", "attack", "hack", "api key", "access token"]
     for term in forbidden_terms:
         if term in text.lower():
             logger.error("Unsafe content detected in LLM output: %r", term)

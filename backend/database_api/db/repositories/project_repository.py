@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from backend.database_api.db.models import Project
@@ -28,7 +29,7 @@ class ProjectRepository:
         self.db.delete(db_project)
         self.db.commit()
 
-    def list(self, name: str = None, status: str = None) -> list[Project]:
+    def list(self, name: Optional[str] = None, status: Optional[str] = None) -> list[Project]:
         query = self.db.query(Project)
         if name:
             query = query.filter(Project.name.ilike(f"%{name}%"))

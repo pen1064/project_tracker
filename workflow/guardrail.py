@@ -27,6 +27,6 @@ def filter_llm_output(text: str) -> str:
     for term in forbidden_terms:
         if term in text.lower():
             logger.error("Unsafe content detected in LLM output: %r", term)
-            raise ValueError(f"Unsafe content detected: {term}")
+            raise ValueError(f"Unsafe content detected, this item is strictly prohibited: {term}")
     logger.debug("LLM output passed filtering.")
     return text

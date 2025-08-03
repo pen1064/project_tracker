@@ -60,6 +60,7 @@ To run the agentic workflow, follow these steps:
 ```bash
 python -m workflow.cli
 ```
+The example user prompts used in the demo: [test_prompts.txt](workflow%2Ftest_prompts.txt)
 
 [![Watch the video](screenshot_test_workflow.png)](example.mp4)
 The link to video: [example.mp4](example.mp4)
@@ -67,7 +68,7 @@ The link to video: [example.mp4](example.mp4)
 ## 6. **Architecture Overview**
 
 This project implements an agentic workflow system integrating multiple components to manage projects and tasks efficiently. The core architecture is designed for scalability, observability, and smooth user interaction.
-![project_tracker.png](project_tracker.png)
+![overview.png](project_tracker_overview.png)
 ---
 
 ### Key Components
@@ -87,8 +88,28 @@ This project implements an agentic workflow system integrating multiple componen
   _Example nodes:_ `Create Project`, `Create Task`.
 
 ---
+#### 2. Internal Prompt Engineering Technique and Design
+All the prompts used are within [mcp-server/src/utils/gemini_prompt](mcp-server%2Fsrc%2Futils%2Fgemini_prompts)
 
-### Data and Context Management
+Modular Prompt Templates per Node: Each LLM node (`Plan`, `Clarify`, `Analyze After Check`, `Final Answer`) has a purpose-built prompt template guiding the model’s behavior precisely for its task.
+
+Separation of Concerns: Each prompt targets a specific subtask (intent detection, clarification, analysis, final response), reducing complexity and easing maintenance.
+
+Dynamic Context Injection: Prompts incorporate the current conversation context and relevant database query results from previous nodes to maintain continuity across multiple user turns and data interactions.
+
+Few-Shot and Instruction-Based Prompting: Examples and clear instructions are embedded in prompts to reduce ambiguity and ensure output consistency.
+
+Prompt Safety Guardrails: Prompts contain safety instructions not to answer some particular sensitive information i.e. API Key for now.
+
+Progressive Refinement via Clarify Node: If user input or outputs are incomplete, prompts in the Clarify node solicit additional information to improve understanding.
+
+In production environment, what can be done better in terms of prompt?
+- Provide more examples on what the agent should not respond to (i.e. api key, password, PII)
+- Version control should be applied to each node for traceability on model performance.
+
+---
+
+#### 3. Data and Context Management
 
 - **In-Memory Context Management (Langchain InMemory):**  
   - For development and testing, conversation context is managed using LangGraph's **InMemorySaver**, which temporarily holds session states. This allows the agent to maintain context across multiple user inputs within the same workflow.
@@ -105,7 +126,7 @@ This project implements an agentic workflow system integrating multiple componen
 
 ---
 
-### Backend and Data Persistence
+#### 4. Backend and Data Persistence
 
 - **PostgreSQL:**  
   Serves as the primary relational database storing `Project` and `Task` entities, queried and updated by workflow nodes.
@@ -118,7 +139,7 @@ This project implements an agentic workflow system integrating multiple componen
 
 ---
 
-### Background Processing & Monitoring (Production Considerations)
+#### 5. Background Processing & Monitoring (Production Considerations)
 
 - **Message Broker & Background Jobs:**  
   - Triggered on project/task creation, update, or deletion to send notification emails (e.g., SMTP server integration).  
@@ -132,13 +153,13 @@ This project implements an agentic workflow system integrating multiple componen
 
 ---
 
-### User Interaction
+#### 6. User Interaction
 
 Users interact with the system primarily through the **agentic workflow** interface, which processes intents, queries, and updates tasks/projects accordingly.
 
 ---
 
-### Summary Flow
+#### 7. Summary Flow
 
 1. User input triggers the **Workflow**.  
 2. Workflow nodes perform planning and clarifying with LLM tools.  

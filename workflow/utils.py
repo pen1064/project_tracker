@@ -35,12 +35,12 @@ def prompt_user_for_duplicate(
     """
     if item_type == "project":
         existing_names_list_print_out: str = ", ".join(
-            [p.get("name", "") for p in existing_items_list]
+            [f'{p.get("name", "")} (id: {p.get("id", "")})' for p in existing_items_list]
         )
         target_item_name: str = new_item.get("name", "")
     else:
         existing_names_list_print_out = ", ".join(
-            [t.get("title", "") for t in existing_items_list]
+            [f'{t.get("title", "")} (id: {t.get("id", "")})' for t in existing_items_list]
         )
         target_item_name = new_item.get("title", "")
 

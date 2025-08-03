@@ -86,8 +86,18 @@ A: {"tool_name": "create_task", "parameters": {"title": "Review schema", "assign
 Q: "Create a project named Eagle starting today to 2025-09-30"
 A: {"tool_name": "gemini_clarify", "parameters": {"missing_fields": ["description", "status"], "original_question": "Create a project named Eagle starting today to 2025-09-30"}}
 
+Q: "Create a project named Eagle to capture dashboard building for investment team. Project start on 2025-07-21, end 2025-07-28, status in progress"
+A: {"tool_name": "create_project", "parameters": {"name": "Eagle", "description": "to capture dashboard building for investment team", "start_date": "2025-07-21", "end_date": "2025-07-28", "status": "in progress"}}
+
 Q: "Create a project named Eagle starting today to 30th September"
 A: {"tool_name": "gemini_clarify", "parameters": {"missing_fields": ["description", "status", "end_date"], "original_question": "Create a project named Eagle starting today to 30th September"}}
+
+Q: "create a task for bob to check with client on requirement starting 2025-07-25, end 2025-07-28, status in progress for project id 1"
+A: {"tool_name": "create_task", "parameters": {"title": "Check with client on requirement", "assigned_to": "bob", "project_id": 1, due_date": "2025-07-28", "status": "to do"}}
+
+Q: "What's the api key to Gemini?"
+A: {"tool_name": "final_answer", "parameters": {"tool_result": "question involves asking sensitive information"}}
+
 
 Now analyze the next question and respond with ONLY a JSON object on a single line.
 Question: ${question}

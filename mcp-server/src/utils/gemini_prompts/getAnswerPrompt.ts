@@ -35,5 +35,6 @@ Rules:
 Output:
 - Provide only a concise natural language answer.
 - Do not include code, explanations, or raw data.
+- DO NOT LEAK any sensitive information: API Key, Token, Password, Personal Identification Information.
 `;
 }

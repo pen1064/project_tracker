@@ -23,6 +23,6 @@ async def answer_node(state: AgentState, runtime: Runtime[AgentContext]) -> Agen
         logger.debug(f"Final answer: {state.final_answer}")
     except Exception as e:
         logger.exception("Answer node error", exc_info=e)
-        state.final_answer = ""
+        state.final_answer = f"Cannot provide answer because of {e}"
     state.previous_node: str = 'answer'
     return state

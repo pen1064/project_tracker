@@ -26,9 +26,13 @@ async def plan_node(state: AgentState, runtime: Runtime[AgentContext]) -> AgentS
         logger.debug(f"Raw planner result: {result}")
         plan = result["plan"]
         state.used_tool_name = plan["tool_name"]
-        if state.used_tool_name != "gemini_clarify":
-            state.intent = plan["tool_name"]
-        state.tool_input = plan["parameters"]
+
+        if state.used_tool_name == "final_answer":
+            state.tool_result = plan["parameters"]["tool_result"]
+        else:
+            if state.used_tool_name != "gemini_clarify":
+                state.intent = plan["tool_name"]
+            state.tool_input = plan["parameters"]
 
     except Exception as e:
         logger.exception("Cannot parse plan response", exc_info=e)

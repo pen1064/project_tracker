@@ -13,18 +13,26 @@ async def clarify_node(state: AgentState, runtime: Runtime[AgentContext]) -> Age
     logger.info("Clarify node: Asking for missing fields.")
     missing: list[str] = state.tool_input.get("missing_fields", [])
     question: str = state.tool_input.get("original_question", "")
+    try:
+        clarification_agent = runtime.context.mcp_tools["gemini_clarify"]
+        if clarification_agent:
+            result = await clarification_agent(
+                missing_fields=missing,
+                original_question=question,
+            )
+            if result["isError"] is True:
+                raise RuntimeError(f'Query projects returned an error: {result.get("error")}')
+            clarification: str = result["clarification"]
+            logger.info(f"Clarification Agent Result: {clarification}")
+        else:
+            clarification = f"Please provide the following missing fields to proceed with: {', '.join(missing)}."
 
-    clarification_agent = runtime.context.mcp_tools["gemini_clarify"]
-    if clarification_agent:
-        result = await clarification_agent(
-            missing_fields=missing,
-            original_question=question,
+        state.final_answer = clarification
+    except Exception as e:
+        logger.exception("Error during clarify_node", exc_info=e)
+        state.tool_result = (
+            f"ERROR: Fail to clarify requirements ecause of {e}"
         )
-        clarification: str = result["clarification"]
-        logger.info(f"Clarification Agent Result: {clarification}")
-    else:
-        clarification = f"Please provide the following missing fields to proceed with: {', '.join(missing)}."
 
-    state.final_answer = clarification
     state.previous_node: str = 'clarify'
     return state

@@ -40,7 +40,7 @@ To run all the test cases, follow these steps:
    ```bash
    docker exec -it project-tracker-backend-fastapi sh
    ```
-2. **Run the workflow:**
+2. **Run the pytest:**
 ```bash
 pytest -vv -s --show-capture=all
 ```
@@ -56,6 +56,7 @@ To run the agentic workflow, follow these steps:
 ```bash
 python -m workflow.cli
 ```
+
 [![Watch the video](img_1.png)](..%2F..%2FDownloads%2Fexample.mp4)
 
 

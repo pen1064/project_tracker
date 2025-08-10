@@ -21,12 +21,20 @@ docker compose up
 This will launch all three containers:
 - **project-tracker-db-1**  
   _PostgreSQL database_
+- **project-tracker-redis-data**  
+  _Redis database_
 - **project-tracker-backend-fastapi**  
-  _Backend API and agentic workflow_
-- **project-tracker-mcp**  
-  _MCP server_
+  _Backend DB API_
+- **project-tracker-workfllow-fastapi**  
+  _Agentic workflow API_
+- **project-tracker-frontend-fastapi**  
+  _Chatbot App API_
+- **project-tracker-mcp-db**  
+  _MCP server to DB_
+- **project-tracker-mcp-gemini**  
+  _MCP server to Gemini_
 
-![img.png](docker_containers.png)
+![img.png](containers.png)
 ### 3. **Access the FastAPI Database CRUD**
 Open your browser and go to:
 http://localhost:8000/docs#/
@@ -62,13 +70,12 @@ python -m workflow.cli
 ```
 The example user prompts used in the demo: [test_prompts.txt](workflow%2Ftest_prompts.txt)
 
-[![Watch the video](screenshot_test_workflow.png)](example.mp4)
-The link to video: [example.mp4](example.mp4)
+The link to video: [Recording 2025-08-09 204404.mp4](Recording%202025-08-09%20204404.mp4)
 
 ## 6. **Architecture Overview**
 
 This project implements an agentic workflow system integrating multiple components to manage projects and tasks efficiently. The core architecture is designed for scalability, observability, and smooth user interaction.
-![overview.png](project_tracker_overview.png)
+![img.png](project_tracker_overview.png)
 ---
 
 ### Key Components
@@ -111,18 +118,13 @@ In production environment, what can be done better in terms of prompt?
 
 #### 3. Data and Context Management
 
-- **In-Memory Context Management (Langchain InMemory):**  
-  - For development and testing, conversation context is managed using LangGraph's **InMemorySaver**, which temporarily holds session states. This allows the agent to maintain context across multiple user inputs within the same workflow.
+- **Langgraph Redis**  
+  - For development and testing, conversation context is managed using Redis, which temporarily holds session states. This allows the agent to maintain context across multiple user inputs within the same workflow.
   - This is especially important for nodes like the **Clarify** node, where the user may need to provide additional information or partial input. Using in-memory context ensures that the agent does not lose track of previous context when the user inputs are incomplete or spread over multiple interactions.
-
-- **Redis (Production):**  
-  In production environments, Redis is recommended to manage conversation context for persistence, scalability, and fast access.
-
 
 - **Guardrails for Sensitive Data:**
   - Currently, basic guardrails are in place that use keyword-based detection to prevent accidental leakage of sensitive information such as passwords, API keys, and access tokens.
   - In a production environment, can use an online streaming ML model to redact PII, for example using Microsoft Presidio.
-
 
 ---
 
@@ -134,7 +136,10 @@ In production environment, what can be done better in terms of prompt?
 - **FastAPI Backend:**  
   Hosts the REST API, interacts with the MCP Server, PostgreSQL database, and message broker for background jobs.
 
-- **MCP Server:**  
+- **FastAPI Workflow:**  
+  Hosts the REST API, wrapping agentic workflow.
+
+- **MCP Servers:**  
   Acts as the orchestrator for tool calls, mediating between the LLMs, the API for database queries, and external APIs (if anymore).
 
 ---
@@ -161,7 +166,7 @@ Users interact with the system primarily through the **agentic workflow** interf
 
 #### 7. Summary Flow
 
-1. User input triggers the **Workflow**.  
+1. User send request to agentic workflow API.
 2. Workflow nodes perform planning and clarifying with LLM tools.  
 3. Database query nodes check existing data in PostgreSQL.  
 4. Based on checks, creation nodes add new projects or tasks.  
@@ -190,7 +195,18 @@ Users interact with the system primarily through the **agentic workflow** interf
 │   ├── __init__.py
 │   ├── Dockerfile
 │   └── start.sh
-├── mcp-server/
+├── frontend/
+│   ├── __init__.py
+│   ├── demo.py/
+├── mcp-server-db/
+│   ├── src/
+│   │   ├── handlers/
+│   │   ├── utils/
+│   │   └── server.ts
+│   ├── Dockerfile
+│   ├── package.json
+│   └── tsconfig.json
+├── mcp-server-gemini/
 │   ├── src/
 │   │   ├── handlers/
 │   │   ├── utils/
@@ -199,6 +215,10 @@ Users interact with the system primarily through the **agentic workflow** interf
 │   ├── package.json
 │   └── tsconfig.json
 ├── workflow/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── chatbot.py
 │   ├── nodes/
 │   │   ├── __init__.py
 │   │   ├── node_1.py

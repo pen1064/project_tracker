@@ -3,12 +3,14 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from backend.database_api.db.connection import database
 from backend.database_api.db.repositories.task_repository import TaskRepository
 from backend.database_api.enum.status import TaskStatus
 from backend.database_api.schemas.task import Task, TaskCreate, TaskUpdate
 from backend.database_api.services.task_service import TaskService
+
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -26,7 +28,31 @@ def create_task(
     """
         Endpoint to create a new task.
     """
-    return service.create(task=task)
+    logging.info(f"Creating task with data: {task}")
+    try:
+        return service.create(task=task)
+    except IntegrityError as e:
+        logging.exception("Integrity error while creating task")
+        # Try to extract the DB detail safely
+        raw = getattr(e, "orig", e)
+        diag = getattr(raw, "diag", None)
+        db_error = str(diag) if diag else str(raw)
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "message": "Database constraint error while creating task, project does not exist",
+                "db_error": db_error,
+            },
+        )
+    except Exception as e:
+        logging.exception("Unexpected error while creating task")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Unexpected error while creating task",
+                "error": str(e),
+            },
+        )
 
 
 @router.get("/{task_id}", response_model=Task)

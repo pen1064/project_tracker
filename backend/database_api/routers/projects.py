@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from backend.database_api.db.connection import database
 from backend.database_api.db.repositories.project_repository import ProjectRepository
@@ -27,9 +28,25 @@ def create_project(
         Endpoint to create a new Project.
     """
     logging.info(f"Creating project with data: {project}")
-    new_project = service.create(project=project)
-    return new_project
-
+    try:
+        new_project = service.create(project=project)
+        return new_project
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Database constraint error while creating project",
+                "db_error": str(getattr(e.orig, "diag", None)) or str(e.orig) or str(e)
+            }
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": "Unexpected error while creating project",
+                "error": str(e)
+            }
+        )
 
 @router.get("/{project_id}", response_model=Project)
 def get_project(

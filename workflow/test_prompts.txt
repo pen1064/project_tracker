@@ -19,5 +19,5 @@ create a task for bob to check requirements from client starting 2025-07-25, end
 create a task for bob to draft SLA starting 2025-07-25, end 2025-08-31, status in progress, project id 2
 
 7. Just another way to ask question.
-what is the project id for data pipeline?
+what is the project id of data pipeline?
 

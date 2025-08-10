@@ -18,3 +18,4 @@ class AgentState(BaseModel):
     used_tool_name: Optional[str] = None
     user_id: str = None
     thread_id: str = None
+    error: Optional[dict] = None

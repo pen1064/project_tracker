@@ -1,131 +1,65 @@
-import json
-import logging
 import os
-from collections.abc import Awaitable, Callable
-from typing import Any, Union
-
-import aiohttp
+import logging
+from typing import Callable, Awaitable, Optional
+from fastmcp import Client
 
 logger = logging.getLogger(__name__)
 
-MCP_URL: str = os.environ.get("MCP_SERVER_URL")
+MCP_DB_URL: Optional[str] = os.environ.get("MCP_SERVER_DB_URL")
+MCP_GEMINI_URL: Optional[str] = os.environ.get("MCP_SERVER_GEMINI_URL")
+
+ToolFn = Callable[..., Awaitable]
+
+def _wrap_tool(client: Client, tool_name: str) -> ToolFn:
+    async def _runner(**kw):
+        return await client.call_tool(tool_name, kw)
+    return _runner
+
+async def setup_mcp() -> dict[str, ToolFn]:
+    """
+    Connect to up to two MCP servers (DB + Gemini) and return:
+      - clients: {'db': Client, 'gemini': Client} for those that exist
+      - mcp_tools: mapping of callable tools with BOTH
+    """
+    clients: dict[str, Client] = {}
+    mcp_tools: dict[str, ToolFn] = {}
+
+    if MCP_DB_URL:
+        logger.info("Connecting MCP DB server: %s", MCP_DB_URL)
+        db_client = Client(MCP_DB_URL)
+        await db_client.__aenter__()
+        clients["db"] = db_client
+
+        db_tools = await db_client.list_tools()
+        logger.info("DB tools: %s", [t.name for t in db_tools])
+
+        for t in db_tools:
+            mcp_tools[t.name] = _wrap_tool(db_client, t.name)
+
+    else:
+        logger.warning("MCP_SERVER_DB_URL not set; skipping DB MCP server.")
 
 
-class MCPHttpClient:
-    def __init__(self, base_url: str = MCP_URL) -> None:
-        self.base_url: str = base_url
-        self.session: aiohttp.ClientSession = None
-        self.session_id: Union[str, None] = None
-        self._id_counter: int = 0
-        logger.info(f"MCPHttpClient initialized with base_url: {self.base_url}")
+    if MCP_GEMINI_URL:
+        logger.info("Connecting MCP Gemini server: %s", MCP_GEMINI_URL)
+        gem_client = Client(MCP_GEMINI_URL)
+        await gem_client.__aenter__()
+        clients["gemini"] = gem_client
 
-    async def _ensure_session(self) -> None:
-        if self.session is None:
-            self.session = aiohttp.ClientSession()
+        gem_tools = await gem_client.list_tools()
+        logger.info("Gemini tools: %s", [t.name for t in gem_tools])
 
-    async def initialize(self) -> dict[str, Any]:
-        """
-        Perform the MCP 'initialize' call and capture the mcp-session-id.
-        """
-        await self._ensure_session()
-        self._id_counter += 1
-        payload: dict[str, Any] = {
-            "jsonrpc": "2.0",
-            "id": self._id_counter,
-            "method": "initialize",
-            "params": {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {},
-                "clientInfo": {"name": "python-client", "version": "1.0.0"},
-            },
-        }
-        headers: dict[str, str] = {"Accept": "application/json,text/event-stream"}
-        logger.info(f"Sending MCP initialize -> {json.dumps(payload)}")
-        async with self.session.post(
-            self.base_url, json=payload, headers=headers
-        ) as resp:
-            text: str = await resp.text()
-            logger.info(f"Initialize raw response: {text}")
-            data: dict[str, Any] = json.loads(text)
-            self.session_id: str = resp.headers.get("mcp-session-id")
-            logger.info(f"Session ID: {self.session_id}")
-            return data
+        for t in gem_tools:
+            mcp_tools[t.name] = _wrap_tool(gem_client, t.name)
+    else:
+        logger.warning("MCP_SERVER_GEMINI_URL not set; skipping Gemini MCP server.")
 
-    async def _call(self, method: str, params: dict):
-        """
-        JSON-RPC call with session_id header.
-        """
-        if not self.session_id:
-            raise RuntimeError("MCP client not initialized. Call initialize() first.")
-        await self._ensure_session()
+    return mcp_tools
 
-        self._id_counter += 1
-        payload: dict[str, Any] = {
-            "jsonrpc": "2.0",
-            "id": self._id_counter,
-            "method": method,
-            "params": params or {},
-        }
-        headers: dict[str, str] = {
-            "Accept": "application/json,text/event-stream",
-            "mcp-session-id": self.session_id,
-        }
-        async with self.session.post(
-            self.base_url, json=payload, headers=headers
-        ) as resp:
-            text: str = await resp.text()
-            logger.debug(f"Raw response ({method}): {text}")
-            data: dict[str, Any] = json.loads(text)
-            if "error" in data:
-                raise RuntimeError(data["error"])
-            return data["result"]
-
-    async def list_tools(self):
-        logger.info("Listing tools...")
-        result: dict[str, Any] = await self._call("tools/list", {})
-        tools: list[dict[str, Any]] = result.get("tools", [])
-        return {t["name"]: t for t in tools}
-
-    async def run_tool(self, tool_name: str, **kwargs):
-        """
-        Run a specific tool via tools/call.
-        """
-        logger.debug(f"Running tool: {tool_name} with args: {kwargs}")
-        params: dict[str, Any] = {"name": tool_name, "arguments": kwargs}
-        result: dict[str, Any] = await self._call("tools/call", params)
-
-        # MCP response always has content array; parse if JSON
-        content_item = result["content"][0]
-        text: str = content_item.get("text", "")
+async def close_mcp(clients: dict[str, Client]) -> None:
+    for label, client in clients.items():
         try:
-            return json.loads(text)
-        except Exception:
-            return text
-
-    async def close(self):
-        if self.session:
-            await self.session.close()
-            self.session = None
-
-
-async def setup_mcp():
-    """
-    Initialize MCP and return a tuple (client, tool_runners).
-    tool_runners is a dict of async functions to run tools easily.
-    """
-    client: MCPHttpClient = MCPHttpClient()
-    await client.initialize()
-    tools_info: dict[str, dict[str, Any]] = await client.list_tools()
-
-    mcp_tools: dict[str, Callable[..., Awaitable[Any]]] = {}
-
-    def make_runner(tool_name) -> Callable[..., Awaitable[Any]]:
-        async def _runner(**kwargs):
-            return await client.run_tool(tool_name, **kwargs)
-
-        return _runner
-
-    for tool_name in tools_info:
-        mcp_tools[tool_name] = make_runner(tool_name)
-
-    return client, mcp_tools
+            await client.__aexit__(None, None, None)
+            logger.info("Closed MCP client: %s", label)
+        except Exception as e:
+            logger.exception("Error closing MCP client '%s': %s", label, e)

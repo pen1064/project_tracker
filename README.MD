@@ -60,14 +60,8 @@ The link to video: [pytest.mp4](pytest.mp4)
 ### 5. **Test Out the Agentic Workflow**
 To run the agentic workflow, follow these steps:
 
-1. **Open a shell inside the running backend container:**
-   ```bash
-   docker exec -it project-tracker-backend-fastapi sh
-   ```
-2. **Run the workflow:**
-```bash
-python -m workflow.cli
-```
+Just go to http://localhost:7860/
+
 The example user prompts used in the demo: [test_prompts.txt](workflow%2Ftest_prompts.txt)
 
 The link to video: [Recording 2025-08-09 204404.mp4](Recording%202025-08-09%20204404.mp4)

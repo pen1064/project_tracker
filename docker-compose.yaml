@@ -9,7 +9,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/project_tracker
       MCP_SERVER_URL: http://mcp:4000-db/mcp
-    container_name: project-tracker-backend-fastapi
+    container_name: project-tracker-backend-fastapi-new
     ports:
       - "8000:8000"
     depends_on:
@@ -27,7 +27,7 @@ services:
       MCP_SERVER_DB_URL: http://mcp-db:4000/mcp
       MCP_SERVER_GEMINI_URL: http://mcp-gemini:4001/mcp
       REDIS_URL: redis://redis:6379/0
-    container_name: project-tracker-workflow-fastapi
+    container_name: project-tracker-workflow-fastapi-new
     ports:
       - "8080:8080"
     depends_on:
@@ -37,7 +37,7 @@ services:
 
   db:
     image: postgres:15
-    container_name: project-tracker-db-1
+    container_name: project-tracker-db-1-new
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -53,7 +53,7 @@ services:
       - ./.env
     environment:
       BACKEND_FASTAPI_BASE: http://backend:8000
-    container_name: project-tracker-mcp-db
+    container_name: project-tracker-mcp-db-new
     restart: always
     ports:
       - "4000:4000"
@@ -66,7 +66,7 @@ services:
       - ./mcp-server-gemini:/app/mcp-server-gemini
     env_file:
       - ./.env
-    container_name: project-tracker-mcp-gemini
+    container_name: project-tracker-mcp-gemini-new
     restart: always
     ports:
       - "4001:4001"
@@ -82,7 +82,7 @@ services:
       - ./.env
     environment:
       WORKFLOW_API_BASE: http://workflow:8080
-    container_name: project-tracker-frontend
+    container_name: project-tracker-frontend-new
     restart: always
     ports:
       - "7860:7860"
@@ -91,12 +91,12 @@ services:
 
   redis:
     image: redis:8-alpine
-    container_name: project-tracker-redis_data
+    container_name: project-tracker-redis_data-new
     ports:
       - "6379:6379"
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "redis_data-cli", "ping" ]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 20

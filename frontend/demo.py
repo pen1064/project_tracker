@@ -1,7 +1,8 @@
 import httpx
 import gradio as gr
+import os
 
-API = "http://workflow:8080"
+WORKFLOW_API_BASE = os.getenv("WORKFLOW_API_BASE", "http://workflow:8080")
 
 def append_user(message, chat_history, state):
     """
@@ -19,7 +20,7 @@ def stream_bot(chat_history, state):
     """
     try:
         payload = {"user_id": "demo-user", "message": chat_history[-1][0], "state": state}
-        r = httpx.post(f"{API}/chat", json=payload, timeout=None)
+        r = httpx.post(f"{WORKFLOW_API_BASE}/chat", json=payload, timeout=None)
         r.raise_for_status()
         data = r.json()
         bot = data.get("answer", "")
